@@ -1,5 +1,5 @@
 import { Router } from "express";
-import myTasks from "./tasks.js";
+import fs from "fs";
 
 const router = Router();
 
@@ -8,7 +8,12 @@ router.get("/", (req, res) => {
 });
 
 router.get("/all-tasks", (req, res) => {
-  res.json(myTasks);
+  const jsonFileTAsks = fs.readFileSync(
+    process.cwd() + "/mocks/tasks.json",
+    "utf8"
+  );
+  const parsedTasks = JSON.parse(jsonFileTAsks);
+  res.json(parsedTasks);
 });
 
 export default router;

@@ -9,6 +9,8 @@ body {
     min-height: 100vh;
 }
 
+
+
 .global-css {
     font-weight: bold;
     box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
@@ -36,7 +38,7 @@ body {
 }
 
 #app-header button {
-    height: 8vh;
+    height: 6vh;
     border-radius: 5px;
     align-self: center;
     background-color: #C9B8DA;
@@ -51,6 +53,9 @@ h1 {
     width: 80%;
 }
 
+/* nav ul{height:200px; width:18%;}
+nav ul{overflow:hidden; overflow-y:scroll;} */
+
 #task-list {
     display: flex;
     flex-direction: column;
@@ -58,11 +63,17 @@ h1 {
     list-style-type: none;
     align-items: stretch;
     padding: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: 70vh;
+    width: 50vw;
+
 }
 
 .task {
     display: flex;
     justify-content: space-between;
+    align-self: center;
     box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
     background-color: white;
     color: black;
