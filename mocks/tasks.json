@@ -1,0 +1,21 @@
+[
+    {
+        "id": 1,
+        "title": "Make a ToDo application",
+        "description": "Technical challenge to evaluate my computer skills.",
+        "state": "to do"
+    },
+    {
+        "id": 2,
+        "title": "Improve English speaking",
+        "description": "Take english lessons in spoken form",
+        "state": "to do"
+
+    },
+    {
+        "id": 3,
+        "title": "Review VueJS",
+        "description": "A Front framework i have to review",
+        "state": "done"
+    }
+]
