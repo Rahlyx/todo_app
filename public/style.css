@@ -72,6 +72,7 @@ nav ul{overflow:hidden; overflow-y:scroll;} */
 
 .task {
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
     align-self: center;
     box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
@@ -79,12 +80,24 @@ nav ul{overflow:hidden; overflow-y:scroll;} */
     color: black;
     border-radius: 5px;
     margin-top: 2vh;
-    padding: 2vh;
+    padding: 1vh;
     width: 40vw;
 }
 
+.task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    margin: 0.5vh;
+}
+
+.task-description {
+    margin: 0.5vh;
+}
+
 .task img {
-    height: 20px;
+    height: 30px;
 }
 
 .to-do-task {

@@ -14,8 +14,13 @@ function displayTaskList(tasksList) {
     let task = tasksList[key];
     let li = document.createElement("li");
     li.classList.add("task");
-    let span = document.createElement("span");
-    span.textContent = task.title;
+
+    let taskHeader = document.createElement("div");
+    taskHeader.classList.add("task-header");
+
+    let todoTitle = document.createElement("span");
+    todoTitle.textContent = task.title;
+
     let img = document.createElement("img");
     if (task.state === "to do") {
       li.classList.add("to-do-task");
@@ -25,12 +30,24 @@ function displayTaskList(tasksList) {
       img.src = "public/logos/checked_box.svg";
     }
     li.setAttribute("id", `li-${task.id}`);
+    li.addEventListener("click", () => {
+      toggleDeployTask(task);
+    });
+
+    let description = document.createElement("p");
+    description.textContent = task.description;
+    description.classList.add("task-description");
+    description.style.display = "none";
+    description.setAttribute("id", `desc-${task.id}`);
+
     img.setAttribute("id", `logo-${task.id}`);
     img.addEventListener("click", () => {
       crossTask(task);
     });
-    li.appendChild(span);
-    li.appendChild(img);
+    taskHeader.appendChild(todoTitle);
+    taskHeader.appendChild(img);
+    li.appendChild(taskHeader);
+    li.appendChild(description);
     list.appendChild(li);
   }
 }
@@ -56,12 +73,21 @@ function changeTaskPosition(task) {
   tasksList.push(task);
   clearDisplayedList();
   displayTaskList(tasksList);
+  toggleDeployTask(task);
 }
 
 function clearDisplayedList() {
   let ul = document.getElementById("task-list");
   while (ul.firstChild) {
     ul.removeChild(ul.firstChild);
+  }
+}
+function toggleDeployTask(task) {
+  let description = document.getElementById(`desc-${task.id}`);
+  if (description.style.display === "none") {
+    description.style.display = "block";
+  } else {
+    description.style.display = "none";
   }
 }
 
