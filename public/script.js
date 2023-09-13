@@ -1,13 +1,8 @@
-let tasksList = [];
-
 /**
  * Request that goes retrieve data from the server on JSON file
  */
 async function getAllTasks() {
-  const parsedTasks = await (await fetch("/all-tasks")).json();
-  for (let key in parsedTasks) {
-    tasksList.push(parsedTasks[key]);
-  }
+  const tasksList = await (await fetch("/all-tasks")).json();
   displayTaskList(tasksList);
 }
 
@@ -17,7 +12,7 @@ async function getAllTasks() {
  */
 function displayTaskList(tasksList) {
   let list = document.getElementById("task-list");
-  for (key in tasksList) {
+  for (let key in tasksList) {
     let task = tasksList[key];
     let li = document.createElement("li");
     li.classList.add("task");
@@ -61,20 +56,20 @@ function displayTaskList(tasksList) {
 
 /**
  * Check the task box to change its state
- * Fix bug when restarting browser (data is not saved here)
  * @param {Object} task
  * return {void}
  */
-function crossTask(task) {
+async function crossTask(task) {
   let img = document.getElementById(`logo-${task.id}`);
   let li = document.getElementById(`li-${task.id}`);
 
   if (task.state === "to do") {
     li.classList.remove("to-do-task");
     li.classList.add("done-task");
-    task.state = "done";
     img.src = "public/logos/checked_box.svg";
-    changeTaskPosition(task);
+    const updatedList = await changeTaskState(task);
+    clearDisplayedList();
+    displayTaskList(updatedList);
   } else {
     console.log("Task is already completed");
   }
@@ -85,16 +80,22 @@ function crossTask(task) {
  * @param {Object} task
  * return {void}
  */
-function changeTaskPosition(task) {
-  let taskIndex = tasksList.findIndex((e) => e.id === task.id);
-
-  // tasksList.splice(taskIndex, 1);
-  // tasksList.push(task);
-  tasksList.push(tasksList.splice(taskIndex, 1)[0]);
-  clearDisplayedList();
-  displayTaskList(tasksList);
-
-  toggleDeployTask(task);
+async function changeTaskState(task) {
+  try {
+    const updatedList = await (
+      await fetch("/change-task-state", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(task),
+      })
+    ).json();
+    return updatedList;
+  } catch (error) {
+    console.log("Error : ", error);
+  }
 }
 
 /**
@@ -102,9 +103,6 @@ function changeTaskPosition(task) {
  */
 function clearDisplayedList() {
   let ul = document.getElementById("task-list");
-  // while (ul.firstChild) {
-  //   ul.removeChild(ul.firstChild);
-  // }
   ul.innerHTML = "";
 }
 
@@ -153,18 +151,17 @@ form.addEventListener("submit", (e) => {
   let title = document.getElementById("form-title").value;
   let description = document.getElementById("form-description").value;
   form.reset();
-  createNewTAsk(tasksList, title, description);
+  createNewTAsk(title, description);
 });
 
 /**
  * Send a new task on the server to save it on JSON file
- * @param {array} tasksList
  * @param {string} title
  * @param {string} description
  */
-function createNewTAsk(tasksList, title, description) {
+async function createNewTAsk(title, description) {
   let newTask = {
-    id: tasksList.length + 1,
+    id: await getUniqueId(),
     title: title,
     description: description,
     state: "to do",
@@ -176,17 +173,50 @@ function createNewTAsk(tasksList, title, description) {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ newTask, tasksList }),
+      body: JSON.stringify(newTask),
     })
       .then((response) => {
         return response.json();
       })
-      .then((data) => {
+      .then((updatedTaskList) => {
         document.getElementById("task-list").innerHTML = "";
-        tasksList = data;
         clearDisplayedList();
-        displayTaskList(data);
+        displayTaskList(updatedTaskList);
       });
+  } catch (error) {
+    console.log("Error : ", error);
+  }
+}
+
+/**
+ * Return an array with the ist of IDs already assigned.
+ * @returns  {[Array]}
+ */
+async function getListOfId() {
+  const listOfId = await (await fetch("/all-tasks-id")).json();
+  return listOfId;
+}
+
+/**
+ * Function needed to ensure uniqueness of the id for the task the constructor (createNewTAsk)
+ */
+async function getUniqueId() {
+  const listOfId = await getListOfId();
+  let id = 1;
+  while (listOfId.includes(id)) {
+    id += 1;
+  }
+  try {
+    const rsp = await (
+      await fetch("/add-id", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id }),
+      })
+    ).json();
   } catch (error) {
     console.log("Error : ", error);
   }
