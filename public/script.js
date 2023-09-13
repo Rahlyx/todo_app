@@ -1,5 +1,8 @@
 let tasksList = [];
 
+/**
+ * Request that goes retrieve data from the server on JSON file
+ */
 async function getAllTasks() {
   const parsedTasks = await (await fetch("/all-tasks")).json();
   for (let key in parsedTasks) {
@@ -8,6 +11,10 @@ async function getAllTasks() {
   displayTaskList(tasksList);
 }
 
+/**
+ * Display the entire list of tasks by creating HTML with JS
+ * @param {array} tasksList
+ */
 function displayTaskList(tasksList) {
   let list = document.getElementById("task-list");
   for (key in tasksList) {
@@ -52,6 +59,12 @@ function displayTaskList(tasksList) {
   }
 }
 
+/**
+ * Check the task box to change its state
+ * Fix bug when restarting browser (data is not saved here)
+ * @param {Object} task
+ * return {void}
+ */
 function crossTask(task) {
   let img = document.getElementById(`logo-${task.id}`);
   let li = document.getElementById(`li-${task.id}`);
@@ -61,33 +74,121 @@ function crossTask(task) {
     li.classList.add("done-task");
     task.state = "done";
     img.src = "public/logos/checked_box.svg";
+    changeTaskPosition(task);
   } else {
     console.log("Task is already completed");
   }
-  changeTaskPosition(task);
 }
 
+/**
+ * Change the task position to the end of the list and display it
+ * @param {Object} task
+ * return {void}
+ */
 function changeTaskPosition(task) {
   let taskIndex = tasksList.findIndex((e) => e.id === task.id);
-  tasksList.splice(taskIndex, 1);
-  tasksList.push(task);
+
+  // tasksList.splice(taskIndex, 1);
+  // tasksList.push(task);
+  tasksList.push(tasksList.splice(taskIndex, 1)[0]);
   clearDisplayedList();
   displayTaskList(tasksList);
+
   toggleDeployTask(task);
 }
 
+/**
+ * Clear the displayed list to avoid array duplication
+ */
 function clearDisplayedList() {
   let ul = document.getElementById("task-list");
-  while (ul.firstChild) {
-    ul.removeChild(ul.firstChild);
-  }
+  // while (ul.firstChild) {
+  //   ul.removeChild(ul.firstChild);
+  // }
+  ul.innerHTML = "";
 }
+
+/**
+ * Allow to display the task description
+ * @param {*} task
+ * return {void}
+ */
 function toggleDeployTask(task) {
   let description = document.getElementById(`desc-${task.id}`);
   if (description.style.display === "none") {
     description.style.display = "block";
   } else {
     description.style.display = "none";
+  }
+}
+
+let newTaskButton = document.getElementById("new-task-button");
+newTaskButton.addEventListener("click", () => {
+  displayTaskForm(newTaskButton);
+});
+
+/**
+ * Display the task form by clicking on the new task button
+ * @param {object} newTaskButton
+ * return {void}
+ */
+function displayTaskForm(newTaskButton) {
+  let form = document.getElementById("task-form");
+  let taskList = document.getElementById("task-list");
+  if (newTaskButton.textContent === "New task") {
+    form.style.display = "flex";
+    taskList.style.maxHeight = "50vh";
+    newTaskButton.textContent = "Cancel";
+  } else {
+    newTaskButton.textContent = "New task";
+    form.reset();
+    form.style.display = "none";
+    taskList.style.maxHeight = "70vh";
+  }
+}
+
+let form = document.getElementById("task-form");
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  let title = document.getElementById("form-title").value;
+  let description = document.getElementById("form-description").value;
+  form.reset();
+  createNewTAsk(tasksList, title, description);
+});
+
+/**
+ * Send a new task on the server to save it on JSON file
+ * @param {array} tasksList
+ * @param {string} title
+ * @param {string} description
+ */
+function createNewTAsk(tasksList, title, description) {
+  let newTask = {
+    id: tasksList.length + 1,
+    title: title,
+    description: description,
+    state: "to do",
+  };
+  try {
+    fetch("/new-task", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ newTask, tasksList }),
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        document.getElementById("task-list").innerHTML = "";
+        tasksList = data;
+        clearDisplayedList();
+        displayTaskList(data);
+      });
+  } catch (error) {
+    console.log("Error : ", error);
   }
 }
 

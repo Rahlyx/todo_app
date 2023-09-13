@@ -9,12 +9,24 @@
 <body>
 
     <div id="app">
+
         <div id="app-header">
             <h1>My ToDo List</h1>
-            <button>New task</button>
+            <button id="new-task-button">New task</button>
         </div>
 
+        <form id="task-form">
+
+            <input id="form-title" name="title" placeholder="title" type="text" size="50" onfocus="this.placeholder=''" onblur="this.placeholder='title'" required><br>
+
+            <input id="form-description" name="description" placeholder="description  (optionnal)" type="text" size="80" onfocus="this.placeholder=''" onblur="this.placeholder='description (optionnal)'"><br>
+
+            <input type="submit" id="submit-button" value="Submit">
+
+        </form>
+
         <ul id="task-list">
+
         </ul>
 
     </div>
